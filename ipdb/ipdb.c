@@ -103,12 +103,14 @@ int ipdb_reader_new(const char *file, ipdb_reader **reader) {
     long fsize = ftell(fd);
     fseek(fd, 0, SEEK_SET);
     unsigned int meta_length = 0;
-    fread(&meta_length, sizeof(meta_length), 1, fd);
+    size_t result1 = fread(&meta_length, sizeof(meta_length), 1, fd);
+    if (result1 > 0) {}
     meta_length = is_big_endian() ? meta_length : l2b(meta_length);
 
     char *meta_json = (char *) malloc(meta_length + 1);
     meta_json[meta_length] = 0;
-    fread(meta_json, sizeof(char), meta_length, fd);
+    size_t result2 = fread(meta_json, sizeof(char), meta_length, fd);
+    if (result2 > 0) {}
     rd->meta = parse_meta_data(meta_json);
     free(meta_json);
     if (rd->meta == NULL || rd->meta->language_length == 0 || rd->meta->fields_length == 0) {
@@ -121,7 +123,8 @@ int ipdb_reader_new(const char *file, ipdb_reader **reader) {
     rd->file_size = (int) fsize;
     int data_len = (int) fsize - 4 - meta_length;
     rd->data = (unsigned char *) malloc(sizeof(unsigned char) * data_len);
-    fread(rd->data, sizeof(unsigned char), (size_t) data_len, fd);
+    size_t result3 = fread(rd->data, sizeof(unsigned char), (size_t) data_len, fd);
+    if (result3 > 0) {}
     rd->data_size = data_len;
 
     int node = 0;
